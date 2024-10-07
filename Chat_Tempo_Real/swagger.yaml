@@ -1,0 +1,247 @@
+openapi: 3.0.0
+info:
+  title: API de Gerenciamento de Salas e Usuários
+  description: API para criação, gerenciamento de salas de reunião e autenticação de usuários.
+  version: 1.0.0
+  contact:
+    name: Seu Nome
+    email: seuemail@exemplo.com
+servers:
+  - url: http://localhost:3000
+    description: Servidor local
+
+paths:
+  /api/rooms:
+    post:
+      summary: Criar uma nova sala
+      security:
+        - bearerAuth: []
+      tags:
+        - Salas
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                capacity:
+                  type: integer
+      responses:
+        '201':
+          description: Sala criada com sucesso
+        '500':
+          description: Erro no servidor
+    get:
+      summary: Listar todas as salas
+      security:
+        - bearerAuth: []
+      tags:
+        - Salas
+      responses:
+        '200':
+          description: Lista de salas retornada com sucesso
+        '500':
+          description: Erro no servidor
+
+  /api/rooms/join/{id}:
+    post:
+      summary: Entrar em uma sala
+      security:
+        - bearerAuth: []
+      tags:
+        - Salas
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID da sala
+      responses:
+        '200':
+          description: Usuário entrou na sala
+        '400':
+          description: Sala cheia
+        '404':
+          description: Sala não encontrada
+        '500':
+          description: Erro no servidor
+
+  /api/rooms/leave/{id}:
+    post:
+      summary: Sair de uma sala
+      security:
+        - bearerAuth: []
+      tags:
+        - Salas
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID da sala
+      responses:
+        '200':
+          description: Usuário saiu da sala
+        '404':
+          description: Sala não encontrada
+        '500':
+          description: Erro no servidor
+
+  /api/auth/login:
+    post:
+      summary: Autenticação de usuário
+      tags:
+        - Usuários
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Autenticação bem-sucedida
+        '401':
+          description: Credenciais inválidas
+
+  /api/users:
+    post:
+      summary: Criar um novo usuário
+      tags:
+        - Usuários
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '201':
+          description: Usuário criado com sucesso
+        '400':
+          description: E-mail já utilizado
+    get:
+      summary: Listar todos os usuários
+      tags:
+        - Usuários
+      responses:
+        '200':
+          description: Lista de usuários retornada com sucesso
+        '500':
+          description: Erro no servidor
+
+  /api/users/{id}:
+    get:
+      summary: Obter um usuário pelo ID
+      tags:
+        - Usuários
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID do usuário
+      responses:
+        '200':
+          description: Detalhes do usuário retornado com sucesso
+        '404':
+          description: Usuário não encontrado
+    put:
+      summary: Atualizar um usuário existente
+      tags:
+        - Usuários
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID do usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Usuário atualizado com sucesso
+        '404':
+          description: Usuário não encontrado
+        '400':
+          description: Erro de validação
+    delete:
+      summary: Deletar um usuário
+      tags:
+        - Usuários
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: ID do usuário
+      responses:
+        '200':
+          description: Usuário deletado com sucesso
+        '404':
+          description: Usuário não encontrado
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+
+    Room:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        capacity:
+          type: integer
+        participants:
+          type: array
+          items:
+            type: string
